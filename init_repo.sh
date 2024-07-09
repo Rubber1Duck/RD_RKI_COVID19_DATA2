@@ -60,6 +60,7 @@ while [ "$CDATE" != "$EDATE" ]; do
   git add .
   git commit -m"update on $CDATE"
   git tag -a "$CDATE" -m"update on $CDATE" 
+  git push --follow-tags
 
   # endmessage for currend date
   ECUR=$(date +%s.%N)
