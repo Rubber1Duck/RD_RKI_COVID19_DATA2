@@ -379,9 +379,9 @@ def update_mass(meta):
     BL.sort_values(by=key_list_BL, inplace=True)
     BL.reset_index(inplace=True, drop=True)
     
-    LK["m"] = pd.to_datetime(LK["m"]).dt.date
-    BL["m"] = pd.to_datetime(BL["m"]).dt.date
-
+    LK["m"] = LK["m"].astype(str)
+    BL["m"] = BL["m"].astype(str)
+    
     # fill dates for every region
     allDates = ut.squeeze_dataframe(pd.DataFrame(pd.date_range(end=(Datenstand - dt.timedelta(days=1)), start="2020-01-01").astype(str), columns=["m"]))
     # add Einwohner
