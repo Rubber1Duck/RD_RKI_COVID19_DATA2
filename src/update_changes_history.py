@@ -11,22 +11,22 @@ def update(
         meta,
         BL,
         LK,
-        LKcasesHistory,
-        LKdeathsHistory,
-        LKrecoveredHistory,
-        LKincidenceHistory,
-        BLcasesHistory,
-        BLdeathsHistory,
-        BLrecoveredHistory,
-        BLincidenceHistory,
-        LKDiffCasesHistory,
-        LKDiffDeathsHistory,
-        LKDiffRecoveredHistory,
-        LKDiffIncidenceHistory,
-        BLDiffCasesHistory,
-        BLDiffDeathsHistory,
-        BLDiffRecoveredHistory,
-        BLDiffIncidenceHistory):
+        oldLKcases,
+        oldLKdeaths,
+        oldLKrecovered,
+        oldLKincidence,
+        oldBLcases,
+        oldBLdeaths,
+        oldBLrecovered,
+        oldBLincidence,
+        oldLKDiffCases,
+        oldLKDiffDeaths,
+        oldLKDiffRecovered,
+        oldLKDiffIncidence,
+        oldBLDiffCases,
+        oldBLDiffDeaths,
+        oldBLDiffRecovered,
+        oldBLDiffIncidence):
     
     aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
     print(aktuelleZeit, ": prepare history data. ",end="")
@@ -64,34 +64,6 @@ def update(
     BLrecovered["r"] = BLrecovered["r"].astype("int64")
     BLincidence = BL[["i", "m", "c7", "i7"]].copy()
         
-    # read oldLK(cases, deaths, recovered, incidence) if old file exist
-    # write new data 
-    if not LKcasesHistory.empty:
-        oldLKcases = LKcasesHistory.copy()
-        
-    if not LKdeathsHistory.empty:
-        oldLKdeaths = LKdeathsHistory.copy()
-        
-    if not LKrecoveredHistory.empty:
-        oldLKrecovered = LKrecoveredHistory.copy()
-        
-    if not LKincidenceHistory.empty:
-        oldLKincidence = LKincidenceHistory.copy()
-            
-    # read oldBL(cases, deaths, recovered, incidence) if old file exist
-    # write new data
-    if not BLcasesHistory.empty:
-        oldBLcases = BLcasesHistory.copy()
-           
-    if not BLdeathsHistory.empty:
-        oldBLdeaths = BLdeathsHistory.copy()
-           
-    if not BLrecoveredHistory.empty:
-        oldBLrecovered = BLrecoveredHistory.copy()
-        
-    if not BLincidenceHistory.empty:
-        oldBLincidence = BLincidenceHistory.copy()
-    
     t2 = time.time()
     print(f"Done in {round((t2 - t1), 3)} sec.")
     
@@ -182,61 +154,53 @@ def update(
     BLDiffRecovered["cD"] = ChangeDate
     BLDiffIncidence["cD"] = ChangeDate
     
-    if not LKDiffCasesHistory.empty:
-        LKoldDiffCases = LKDiffCasesHistory.copy()
-        LKoldDiffCases = LKoldDiffCases[LKoldDiffCases["cD"] != ChangeDate]
-        LKDiffCases = pd.concat([LKoldDiffCases, LKDiffCases])
+    if not oldLKDiffCases.empty:
+        oldLKDiffCases = oldLKDiffCases[oldLKDiffCases["cD"] != ChangeDate]
+        LKDiffCases = pd.concat([oldLKDiffCases, LKDiffCases])
     LKDiffCases["dc"] = LKDiffCases["dc"].astype(int)
     LKDiffCases.sort_values(by=["i", "m", "cD"], inplace=True)
     LKDiffCases.reset_index(inplace=True, drop=True)
     
-    if not LKDiffDeathsHistory.empty:
-        LKoldDiffDeaths = LKDiffDeathsHistory.copy()
-        LKoldDiffDeaths = LKoldDiffDeaths[LKoldDiffDeaths["cD"] != ChangeDate]
-        LKDiffDeaths = pd.concat([LKoldDiffDeaths, LKDiffDeaths])
+    if not oldLKDiffDeaths.empty:
+        oldLKDiffDeaths = oldLKDiffDeaths[oldLKDiffDeaths["cD"] != ChangeDate]
+        LKDiffDeaths = pd.concat([oldLKDiffDeaths, LKDiffDeaths])
     LKDiffDeaths.sort_values(by=["i", "m", "cD"], inplace=True)
     LKDiffDeaths.reset_index(inplace=True, drop=True)
                 
-    if not LKDiffRecoveredHistory.empty:
-        LKoldDiffRecovered = LKDiffRecoveredHistory.copy()
-        LKoldDiffRecovered = LKoldDiffRecovered[LKoldDiffRecovered["cD"] != ChangeDate]
-        LKDiffRecovered = pd.concat([LKoldDiffRecovered, LKDiffRecovered])
+    if not oldLKDiffRecovered.empty:
+        oldLKDiffRecovered = oldLKDiffRecovered[oldLKDiffRecovered["cD"] != ChangeDate]
+        LKDiffRecovered = pd.concat([oldLKDiffRecovered, LKDiffRecovered])
     LKDiffRecovered.sort_values(by=["i", "m", "cD"], inplace=True)
     LKDiffRecovered.reset_index(inplace=True, drop=True)
     
-    if not LKDiffIncidenceHistory.empty:
-        LKoldDiffIncidence = LKDiffIncidenceHistory.copy()
-        LKoldDiffIncidence = LKoldDiffIncidence[LKoldDiffIncidence["cD"] != ChangeDate]
-        LKDiffIncidence = pd.concat([LKoldDiffIncidence, LKDiffIncidence])
+    if not oldLKDiffIncidence.empty:
+        oldLKDiffIncidence = oldLKDiffIncidence[oldLKDiffIncidence["cD"] != ChangeDate]
+        LKDiffIncidence = pd.concat([oldLKDiffIncidence, LKDiffIncidence])
     LKDiffIncidence.sort_values(by=["i", "m", "cD"], inplace=True)
     LKDiffIncidence.reset_index(inplace=True, drop=True)
         
-    if not BLDiffCasesHistory.empty:
-        BLoldDiffCases = BLDiffCasesHistory.copy()
-        BLoldDiffCases = BLoldDiffCases[BLoldDiffCases["cD"] != ChangeDate]
-        BLDiffCases = pd.concat([BLoldDiffCases, BLDiffCases])
+    if not oldBLDiffCases.empty:
+        oldBLDiffCases = oldBLDiffCases[oldBLDiffCases["cD"] != ChangeDate]
+        BLDiffCases = pd.concat([oldBLDiffCases, BLDiffCases])
     BLDiffCases["dc"] = BLDiffCases["dc"].astype(int)
     BLDiffCases.sort_values(by=["i", "m", "cD"], inplace=True)
     BLDiffCases.reset_index(inplace=True, drop=True)
             
-    if not BLDiffDeathsHistory.empty:
-        BLoldDiffDeaths = BLDiffDeathsHistory.copy()
-        BLoldDiffDeaths = BLoldDiffDeaths[BLoldDiffDeaths["cD"] != ChangeDate]
-        BLDiffDeaths = pd.concat([BLoldDiffDeaths, BLDiffDeaths])
+    if not oldBLDiffDeaths.empty:
+        oldBLDiffDeaths = oldBLDiffDeaths[oldBLDiffDeaths["cD"] != ChangeDate]
+        BLDiffDeaths = pd.concat([oldBLDiffDeaths, BLDiffDeaths])
     BLDiffDeaths.sort_values(by=["i", "m", "cD"], inplace=True)
     BLDiffDeaths.reset_index(inplace=True, drop=True)
             
-    if not BLDiffRecoveredHistory.empty:
-        BLoldDiffRecovered = BLDiffRecoveredHistory.copy()
-        BLoldDiffRecovered = BLoldDiffRecovered[BLoldDiffRecovered["cD"] != ChangeDate]
-        BLDiffRecovered = pd.concat([BLoldDiffRecovered, BLDiffRecovered])
+    if not oldBLDiffRecovered.empty:
+        oldBLDiffRecovered = oldBLDiffRecovered[oldBLDiffRecovered["cD"] != ChangeDate]
+        BLDiffRecovered = pd.concat([oldBLDiffRecovered, BLDiffRecovered])
     BLDiffRecovered.sort_values(by=["i", "m", "cD"], inplace=True)
     BLDiffRecovered.reset_index(inplace=True, drop=True)
             
-    if not BLDiffIncidenceHistory.empty:
-        BLoldDiffIncidence = BLDiffIncidenceHistory.copy()
-        BLoldDiffIncidence = BLoldDiffIncidence[BLoldDiffIncidence["cD"] != ChangeDate]
-        BLDiffIncidence = pd.concat([BLoldDiffIncidence, BLDiffIncidence])
+    if not oldBLDiffIncidence.empty:
+        oldBLDiffIncidence = oldBLDiffIncidence[oldBLDiffIncidence["cD"] != ChangeDate]
+        BLDiffIncidence = pd.concat([oldBLDiffIncidence, BLDiffIncidence])
     BLDiffIncidence.sort_values(by=["i", "m", "cD"], inplace=True)
     BLDiffIncidence.reset_index(inplace=True, drop=True)
     
