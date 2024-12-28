@@ -157,45 +157,29 @@ def update(
     if not oldLKDiffCases.empty:
         LKDiffCases = pd.concat([oldLKDiffCases, LKDiffCases])
     LKDiffCases["dc"] = LKDiffCases["dc"].astype(int)
-    LKDiffCases.sort_values(by=["i", "m", "cD"], inplace=True)
-    LKDiffCases.reset_index(inplace=True, drop=True)
-    
+        
     if not oldLKDiffDeaths.empty:
         LKDiffDeaths = pd.concat([oldLKDiffDeaths, LKDiffDeaths])
-    LKDiffDeaths.sort_values(by=["i", "m", "cD"], inplace=True)
-    LKDiffDeaths.reset_index(inplace=True, drop=True)
-                
+                    
     if not oldLKDiffRecovered.empty:
         LKDiffRecovered = pd.concat([oldLKDiffRecovered, LKDiffRecovered])
-    LKDiffRecovered.sort_values(by=["i", "m", "cD"], inplace=True)
-    LKDiffRecovered.reset_index(inplace=True, drop=True)
-    
+        
     if not oldLKDiffIncidence.empty:
         LKDiffIncidence = pd.concat([oldLKDiffIncidence, LKDiffIncidence])
-    LKDiffIncidence.sort_values(by=["i", "m", "cD"], inplace=True)
-    LKDiffIncidence.reset_index(inplace=True, drop=True)
-        
+            
     if not oldBLDiffCases.empty:
         BLDiffCases = pd.concat([oldBLDiffCases, BLDiffCases])
     BLDiffCases["dc"] = BLDiffCases["dc"].astype(int)
-    BLDiffCases.sort_values(by=["i", "m", "cD"], inplace=True)
-    BLDiffCases.reset_index(inplace=True, drop=True)
-            
+                
     if not oldBLDiffDeaths.empty:
         BLDiffDeaths = pd.concat([oldBLDiffDeaths, BLDiffDeaths])
-    BLDiffDeaths.sort_values(by=["i", "m", "cD"], inplace=True)
-    BLDiffDeaths.reset_index(inplace=True, drop=True)
-            
+                
     if not oldBLDiffRecovered.empty:
         BLDiffRecovered = pd.concat([oldBLDiffRecovered, BLDiffRecovered])
-    BLDiffRecovered.sort_values(by=["i", "m", "cD"], inplace=True)
-    BLDiffRecovered.reset_index(inplace=True, drop=True)
-            
+                
     if not oldBLDiffIncidence.empty:
         BLDiffIncidence = pd.concat([oldBLDiffIncidence, BLDiffIncidence])
-    BLDiffIncidence.sort_values(by=["i", "m", "cD"], inplace=True)
-    BLDiffIncidence.reset_index(inplace=True, drop=True)
-    
+        
     t2 = time.time()
     print(f"Done in {round((t2 - t1), 3)} sec.")
 

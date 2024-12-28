@@ -233,14 +233,22 @@ if __name__ == '__main__':
   ut.write_json(BLrecoveredHistory, BLrecoveredFull)
   ut.write_json(BLincidenceHistory, BLincidenceFull)
 
+  LKDiffCasesHistory.sort_values(by=["i", "m", "cD"], inplace=True)
   ut.write_json(LKDiffCasesHistory, LKDiffCasesFull)
+  LKDiffDeathsHistory.sort_values(by=["i", "m", "cD"], inplace=True)
   ut.write_json(LKDiffDeathsHistory, LKDiffDeathsFull)
+  LKDiffRecoveredHistory.sort_values(by=["i", "m", "cD"], inplace=True)
   ut.write_json(LKDiffRecoveredHistory, LKDiffRecoveredFull)
+  LKDiffIncidenceHistory.sort_values(by=["i", "m", "cD"], inplace=True)
   ut.write_json(LKDiffIncidenceHistory, LKDiffIncidenceFull)
 
+  BLDiffCasesHistory.sort_values(by=["i", "m", "cD"], inplace=True)
   ut.write_json(BLDiffCasesHistory, BLDiffCasesFull)
+  BLDiffDeathsHistory.sort_values(by=["i", "m", "cD"], inplace=True)
   ut.write_json(BLDiffDeathsHistory, BLDiffDeathsFull)
+  BLDiffRecoveredHistory.sort_values(by=["i", "m", "cD"], inplace=True)
   ut.write_json(BLDiffRecoveredHistory, BLDiffRecoveredFull)
+  BLDiffIncidenceHistory.sort_values(by=["i", "m", "cD"], inplace=True)
   ut.write_json(BLDiffIncidenceHistory, BLDiffIncidenceFull)
 
   t2 = time.time()
