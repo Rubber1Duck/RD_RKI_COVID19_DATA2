@@ -4,34 +4,37 @@ import time as time
 import pandas as pd
 import numpy as np
 import utils as ut
-import gc
 from multiprocess_pandas import applyparallel
 
 
-def update(meta, BL, LK, mode="auto"):
+def update(
+        meta,
+        BL,
+        LK,
+        LKcasesHistory,
+        LKdeathsHistory,
+        LKrecoveredHistory,
+        LKincidenceHistory,
+        BLcasesHistory,
+        BLdeathsHistory,
+        BLrecoveredHistory,
+        BLincidenceHistory,
+        LKDiffCasesHistory,
+        LKDiffDeathsHistory,
+        LKDiffRecoveredHistory,
+        LKDiffIncidenceHistory,
+        BLDiffCasesHistory,
+        BLDiffDeathsHistory,
+        BLDiffRecoveredHistory,
+        BLDiffIncidenceHistory):
+    
     aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
     print(aktuelleZeit, ": prepare history data. ",end="")
     t1 = time.time()
-    HC_dtp = {"i": "str", "m": "object", "c": "int64"}
-    HD_dtp = {"i": "str", "m": "object", "d": "int64"}
-    HR_dtp = {"i": "str", "m": "object", "r": "int64"}
-    HI_dtp = {"i": "str", "m": "object", "c7": "int64", "i7": "float"}
-
-    HCC_dtp = {"i": "str", "m": "object", "c": "int64", "dc": "int64", "cD": "object"}
-    HCD_dtp = {"i": "str", "m": "object", "d": "int64", "cD": "object"}
-    HCR_dtp = {"i": "str", "m": "object", "r": "int64", "cD": "object"}
-    HCI_dtp = {"i": "str", "m": "object", "c7": "int64", "i7": "float", "cD": "object"}
-    
-
     timeStamp = meta["modified"]
     Datenstand = dt.datetime.fromtimestamp(timeStamp / 1000)
     Datenstand = Datenstand.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    if mode !="init":    
-        BL = ut.read_file(meta["BL_url"])
-        LK = ut.read_file(meta["LK_url"])
-    
     # for smaler files rename fields
     # i = Id(Landkreis or Bundesland)
     # t = Name of Id(Landkreis or Bundesland)
@@ -42,9 +45,6 @@ def update(meta, BL, LK, mode="auto"):
     # c7 = cases7d (cases7days)
     # i7 = incidence7d (incidence7days)
 
-    LK.rename(columns={"IdLandkreis": "i", "Landkreis": "t", "Meldedatum": "m", "cases": "c", "deaths": "d", "recovered": "r", "cases7d": "c7", "incidence7d": "i7"}, inplace=True)
-    BL.rename(columns={"IdBundesland": "i", "Bundesland": "t", "Meldedatum": "m","cases": "c", "deaths": "d", "recovered": "r", "cases7d": "c7", "incidence7d": "i7"}, inplace=True)
-    
     # split LK
     LKcases = LK[["i", "m", "c"]].copy()
     LKcases["c"] = LKcases["c"].astype("int64")
@@ -63,67 +63,35 @@ def update(meta, BL, LK, mode="auto"):
     BLrecovered = BL[["i", "m", "r"]].copy()
     BLrecovered["r"] = BLrecovered["r"].astype("int64")
     BLincidence = BL[["i", "m", "c7", "i7"]].copy()
-    t2 = time.time()
-    print(f"Done in {round((t2 - t1), 3)} sec.")
-    
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(f"{aktuelleZeit} : Storeing history data. ",end="")
-    t1=time.time()
-    # store all files not compressed! will be done later
         
-    LKcasesJsonFull = os.path.join(base_path, "..", "dataStore", "history", "cases", "districts.json")
-    LKdeathsJsonFull = os.path.join(base_path, "..", "dataStore", "history", "deaths", "districts.json")
-    LKrecoveredJsonFull = os.path.join(base_path, "..", "dataStore", "history", "recovered", "districts.json")
-    LKincidenceJsonFull = os.path.join(base_path, "..", "dataStore", "history", "incidence", "districts.json")
-    
-    BLcasesJsonFull = os.path.join(base_path, "..", "dataStore", "history", "cases", "states.json")
-    BLdeathsJsonFull = os.path.join(base_path, "..", "dataStore", "history", "deaths", "states.json")
-    BLrecoveredJsonFull = os.path.join(base_path, "..", "dataStore", "history", "recovered", "states.json")
-    BLincidenceJsonFull = os.path.join(base_path, "..", "dataStore", "history", "incidence", "states.json")
-
     # read oldLK(cases, deaths, recovered, incidence) if old file exist
     # write new data 
-    if os.path.exists(LKcasesJsonFull):
-        oldLKcases = ut.read_json(full_fn=LKcasesJsonFull, dtype=HC_dtp)
-        oldLKcases["c"] = oldLKcases["c"].astype("int64")
-    ut.write_json(df=LKcases, full_fn=LKcasesJsonFull)
-    
-    if os.path.exists(LKdeathsJsonFull):
-        oldLKdeaths = ut.read_json(full_fn=LKdeathsJsonFull, dtype=HD_dtp)
-        oldLKdeaths["d"] = oldLKdeaths["d"].astype("int64")
-    ut.write_json(df=LKdeaths, full_fn=LKdeathsJsonFull)
+    if not LKcasesHistory.empty:
+        oldLKcases = LKcasesHistory.copy()
         
-    if os.path.exists(LKrecoveredJsonFull):
-        oldLKrecovered = ut.read_json(full_fn=LKrecoveredJsonFull, dtype=HR_dtp)
-        oldLKrecovered["r"] = oldLKrecovered["r"].astype("int64")
-    ut.write_json(df=LKrecovered, full_fn=LKrecoveredJsonFull)
+    if not LKdeathsHistory.empty:
+        oldLKdeaths = LKdeathsHistory.copy()
         
-    if os.path.exists(LKincidenceJsonFull):
-        oldLKincidence = ut.read_json(full_fn=LKincidenceJsonFull, dtype=HI_dtp)
-        oldLKincidence["c7"] = oldLKincidence["c7"].astype("int64")
-    ut.write_json(df=LKincidence, full_fn=LKincidenceJsonFull)
+    if not LKrecoveredHistory.empty:
+        oldLKrecovered = LKrecoveredHistory.copy()
         
+    if not LKincidenceHistory.empty:
+        oldLKincidence = LKincidenceHistory.copy()
+            
     # read oldBL(cases, deaths, recovered, incidence) if old file exist
     # write new data
-    if os.path.exists(BLcasesJsonFull):
-        oldBLcases = ut.read_json(full_fn=BLcasesJsonFull, dtype=HC_dtp)
-        oldBLcases["c"] = oldBLcases["c"].astype("int64")
-    ut.write_json(df=BLcases, full_fn=BLcasesJsonFull)
-       
-    if os.path.exists(BLdeathsJsonFull):
-        oldBLdeaths = ut.read_json(full_fn=BLdeathsJsonFull, dtype=HD_dtp)
-        oldBLdeaths["d"] = oldBLdeaths["d"].astype("int64")
-    ut.write_json(df=BLdeaths, full_fn=BLdeathsJsonFull)
-       
-    if os.path.exists(BLrecoveredJsonFull):
-        oldBLrecovered = ut.read_json(full_fn=BLrecoveredJsonFull, dtype=HR_dtp)
-        oldBLrecovered["r"] = oldBLrecovered["r"].astype("int64")
-    ut.write_json(df=BLrecovered, full_fn=BLrecoveredJsonFull)
+    if not BLcasesHistory.empty:
+        oldBLcases = BLcasesHistory.copy()
+           
+    if not BLdeathsHistory.empty:
+        oldBLdeaths = BLdeathsHistory.copy()
+           
+    if not BLrecoveredHistory.empty:
+        oldBLrecovered = BLrecoveredHistory.copy()
+        
+    if not BLincidenceHistory.empty:
+        oldBLincidence = BLincidenceHistory.copy()
     
-    if os.path.exists(BLincidenceJsonFull):
-        oldBLincidence = ut.read_json(full_fn=BLincidenceJsonFull, dtype=HI_dtp)
-        oldBLincidence["c7"] = oldBLincidence["c7"].astype("int64")
-    ut.write_json(df=BLincidence, full_fn=BLincidenceJsonFull)
     t2 = time.time()
     print(f"Done in {round((t2 - t1), 3)} sec.")
     
@@ -214,86 +182,84 @@ def update(meta, BL, LK, mode="auto"):
     BLDiffRecovered["cD"] = ChangeDate
     BLDiffIncidence["cD"] = ChangeDate
     
-    LKDiffCasesJsonFull = os.path.join(base_path, "..", "dataStore", "historychanges", "cases", "districts_Diff.json")
-    LKDiffDeathsJsonFull = os.path.join(base_path, "..", "dataStore", "historychanges", "deaths", "districts_Diff.json")
-    LKDiffRecoveredJsonFull = os.path.join(base_path, "..", "dataStore", "historychanges", "recovered", "districts_Diff.json")
-    LKDiffIncidenceJsonFull = os.path.join(base_path, "..", "dataStore", "historychanges", "incidence", "districts_Diff.json")
-
-    BLDiffCasesJsonFull = os.path.join(base_path, "..", "dataStore", "historychanges", "cases", "states_Diff.json")
-    BLDiffDeathsJsonFull = os.path.join(base_path, "..", "dataStore", "historychanges", "deaths", "states_Diff.json")
-    BLDiffRecoveredJsonFull = os.path.join(base_path, "..", "dataStore", "historychanges", "recovered", "states_Diff.json")
-    BLDiffIncidenceJsonFull = os.path.join(base_path, "..", "dataStore", "historychanges", "incidence", "states_Diff.json")
-    
-    if os.path.exists(LKDiffCasesJsonFull):
-        LKoldDiffCases = ut.read_json(full_fn=LKDiffCasesJsonFull, dtype=HCC_dtp)
+    if not LKDiffCasesHistory.empty:
+        LKoldDiffCases = LKDiffCasesHistory.copy()
         LKoldDiffCases = LKoldDiffCases[LKoldDiffCases["cD"] != ChangeDate]
         LKDiffCases = pd.concat([LKoldDiffCases, LKDiffCases])
     LKDiffCases["dc"] = LKDiffCases["dc"].astype(int)
     LKDiffCases.sort_values(by=["i", "m", "cD"], inplace=True)
     LKDiffCases.reset_index(inplace=True, drop=True)
-    ut.write_json(df=LKDiffCases, full_fn=LKDiffCasesJsonFull)
-        
-    if os.path.exists(LKDiffDeathsJsonFull):
-        LKoldDiffDeaths = ut.read_json(full_fn=LKDiffDeathsJsonFull, dtype= HCD_dtp)
+    
+    if not LKDiffDeathsHistory.empty:
+        LKoldDiffDeaths = LKDiffDeathsHistory.copy()
         LKoldDiffDeaths = LKoldDiffDeaths[LKoldDiffDeaths["cD"] != ChangeDate]
         LKDiffDeaths = pd.concat([LKoldDiffDeaths, LKDiffDeaths])
     LKDiffDeaths.sort_values(by=["i", "m", "cD"], inplace=True)
     LKDiffDeaths.reset_index(inplace=True, drop=True)
-    ut.write_json(df=LKDiffDeaths, full_fn=LKDiffDeathsJsonFull)
-        
-    if os.path.exists(LKDiffRecoveredJsonFull):
-        LKoldDiffRecovered = ut.read_json(full_fn=LKDiffRecoveredJsonFull, dtype= HCR_dtp)
+                
+    if not LKDiffRecoveredHistory.empty:
+        LKoldDiffRecovered = LKDiffRecoveredHistory.copy()
         LKoldDiffRecovered = LKoldDiffRecovered[LKoldDiffRecovered["cD"] != ChangeDate]
         LKDiffRecovered = pd.concat([LKoldDiffRecovered, LKDiffRecovered])
     LKDiffRecovered.sort_values(by=["i", "m", "cD"], inplace=True)
     LKDiffRecovered.reset_index(inplace=True, drop=True)
-    ut.write_json(df=LKDiffRecovered, full_fn=LKDiffRecoveredJsonFull)
-        
-    if os.path.exists(LKDiffIncidenceJsonFull):
-        LKoldDiffIncidence = ut.read_json(full_fn=LKDiffIncidenceJsonFull, dtype= HCI_dtp)
+    
+    if not LKDiffIncidenceHistory.empty:
+        LKoldDiffIncidence = LKDiffIncidenceHistory.copy()
         LKoldDiffIncidence = LKoldDiffIncidence[LKoldDiffIncidence["cD"] != ChangeDate]
         LKDiffIncidence = pd.concat([LKoldDiffIncidence, LKDiffIncidence])
     LKDiffIncidence.sort_values(by=["i", "m", "cD"], inplace=True)
     LKDiffIncidence.reset_index(inplace=True, drop=True)
-    ut.write_json(df=LKDiffIncidence, full_fn=LKDiffIncidenceJsonFull)
-    
-    if os.path.exists(BLDiffCasesJsonFull):
-        BLoldDiffCases = ut.read_json(full_fn=BLDiffCasesJsonFull, dtype=HCC_dtp)
+        
+    if not BLDiffCasesHistory.empty:
+        BLoldDiffCases = BLDiffCasesHistory.copy()
         BLoldDiffCases = BLoldDiffCases[BLoldDiffCases["cD"] != ChangeDate]
         BLDiffCases = pd.concat([BLoldDiffCases, BLDiffCases])
     BLDiffCases["dc"] = BLDiffCases["dc"].astype(int)
     BLDiffCases.sort_values(by=["i", "m", "cD"], inplace=True)
     BLDiffCases.reset_index(inplace=True, drop=True)
-    ut.write_json(df=BLDiffCases, full_fn=BLDiffCasesJsonFull)
-        
-    if os.path.exists(BLDiffDeathsJsonFull):
-        BLoldDiffDeaths = ut.read_json(full_fn=BLDiffDeathsJsonFull, dtype= HCD_dtp)
+            
+    if not BLDiffDeathsHistory.empty:
+        BLoldDiffDeaths = BLDiffDeathsHistory.copy()
         BLoldDiffDeaths = BLoldDiffDeaths[BLoldDiffDeaths["cD"] != ChangeDate]
         BLDiffDeaths = pd.concat([BLoldDiffDeaths, BLDiffDeaths])
     BLDiffDeaths.sort_values(by=["i", "m", "cD"], inplace=True)
     BLDiffDeaths.reset_index(inplace=True, drop=True)
-    ut.write_json(df=BLDiffDeaths, full_fn=BLDiffDeathsJsonFull)
-        
-    if os.path.exists(BLDiffRecoveredJsonFull):
-        BLoldDiffRecovered = ut.read_json(full_fn=BLDiffRecoveredJsonFull, dtype= HCR_dtp)
+            
+    if not BLDiffRecoveredHistory.empty:
+        BLoldDiffRecovered = BLDiffRecoveredHistory.copy()
         BLoldDiffRecovered = BLoldDiffRecovered[BLoldDiffRecovered["cD"] != ChangeDate]
         BLDiffRecovered = pd.concat([BLoldDiffRecovered, BLDiffRecovered])
     BLDiffRecovered.sort_values(by=["i", "m", "cD"], inplace=True)
     BLDiffRecovered.reset_index(inplace=True, drop=True)
-    ut.write_json(df=BLDiffRecovered, full_fn=BLDiffRecoveredJsonFull)
-        
-    if os.path.exists(BLDiffIncidenceJsonFull):
-        BLoldDiffIncidence = ut.read_json(full_fn=BLDiffIncidenceJsonFull, dtype= HCI_dtp)
+            
+    if not BLDiffIncidenceHistory.empty:
+        BLoldDiffIncidence = BLDiffIncidenceHistory.copy()
         BLoldDiffIncidence = BLoldDiffIncidence[BLoldDiffIncidence["cD"] != ChangeDate]
         BLDiffIncidence = pd.concat([BLoldDiffIncidence, BLDiffIncidence])
     BLDiffIncidence.sort_values(by=["i", "m", "cD"], inplace=True)
     BLDiffIncidence.reset_index(inplace=True, drop=True)
-    ut.write_json(df=BLDiffIncidence, full_fn=BLDiffIncidenceJsonFull)
-
+    
     t2 = time.time()
     print(f"Done in {round((t2 - t1), 3)} sec.")
 
-    return
+    return [
+        LKcases,
+        LKdeaths,
+        LKrecovered,
+        LKincidence,
+        BLcases,
+        BLdeaths,
+        BLrecovered,
+        BLincidence,
+        LKDiffCases,
+        LKDiffDeaths,
+        LKDiffRecovered,
+        LKDiffIncidence,
+        BLDiffCases,
+        BLDiffDeaths,
+        BLDiffRecovered,
+        BLDiffIncidence]
 
 def update_mass(meta):
     base_path = os.path.dirname(os.path.abspath(__file__))
@@ -439,6 +405,4 @@ def update_mass(meta):
     t2 = time.time()
     print(f"Done in {round(t2-t1, 3)} sec.")
     
-    update(meta=meta, BL=BL, LK=LK, mode="init")
-    
-    return
+    return [BL, LK]
