@@ -7,26 +7,7 @@ import utils as ut
 from multiprocess_pandas import applyparallel
 
 
-def update(
-        meta,
-        BL,
-        LK,
-        oldLKcases,
-        oldLKdeaths,
-        oldLKrecovered,
-        oldLKincidence,
-        oldBLcases,
-        oldBLdeaths,
-        oldBLrecovered,
-        oldBLincidence,
-        oldLKDiffCases,
-        oldLKDiffDeaths,
-        oldLKDiffRecovered,
-        oldLKDiffIncidence,
-        oldBLDiffCases,
-        oldBLDiffDeaths,
-        oldBLDiffRecovered,
-        oldBLDiffIncidence):
+def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi):
     
     aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
     print(aktuelleZeit, ": prepare history data. ",end="")
@@ -46,24 +27,24 @@ def update(
     # i7 = incidence7d (incidence7days)
 
     # split LK
-    LKcases = LK[["i", "m", "c"]].copy()
-    LKcases["c"] = LKcases["c"].astype("int64")
-    LKdeaths = LK[["i", "m", "d"]].copy()
-    LKdeaths["d"] = LKdeaths["d"].astype("int64")
-    LKrecovered = LK[["i", "m", "r"]].copy()
-    LKrecovered["r"] = LKrecovered["r"].astype("int64")
-    LKincidence = LK[["i", "m", "c7", "i7"]].copy()
-    LKincidence["c7"] = LKincidence["c7"].astype("int64")
+    Lc = LK[["i", "m", "c"]].copy()
+    Lc["c"] = Lc["c"].astype("int64")
+    Ld = LK[["i", "m", "d"]].copy()
+    Ld["d"] = Ld["d"].astype("int64")
+    Lr = LK[["i", "m", "r"]].copy()
+    Lr["r"] = Lr["r"].astype("int64")
+    Li = LK[["i", "m", "c7", "i7"]].copy()
+    Li["c7"] = Li["c7"].astype("int64")
     
     # split BL
-    BLcases = BL[["i", "m", "c"]].copy()
-    BLcases["c"] = BLcases["c"].astype("int64")
-    BLdeaths = BL[["i", "m", "d"]].copy()
-    BLdeaths["d"] = BLdeaths["d"].astype("int64")
-    BLrecovered = BL[["i", "m", "r"]].copy()
-    BLrecovered["r"] = BLrecovered["r"].astype("int64")
-    BLincidence = BL[["i", "m", "c7", "i7"]].copy()
-        
+    Bc = BL[["i", "m", "c"]].copy()
+    Bc["c"] = Bc["c"].astype("int64")
+    Bd = BL[["i", "m", "d"]].copy()
+    Bd["d"] = Bd["d"].astype("int64")
+    Br = BL[["i", "m", "r"]].copy()
+    Br["r"] = Br["r"].astype("int64")
+    Bi = BL[["i", "m", "c7", "i7"]].copy()
+    Bi["c7"] = Bi["c7"].astype("int64")    
     t2 = time.time()
     print(f"Done in {round((t2 - t1), 3)} sec.")
     
@@ -72,70 +53,78 @@ def update(
     print(f"{aktuelleZeit} : calculating history difference. ",end="")
     t1 = time.time()
     
-    try:
-        LKDiffCases = ut.get_different_rows(oldLKcases, LKcases)
-        LKDiffCases.set_index(["i", "m"], inplace=True, drop=False)
-        oldLKcases.set_index(["i","m"], inplace=True, drop=False)
-        LKDiffCases["dc"] = LKDiffCases["c"] - oldLKcases["c"]
-        LKDiffCases["dc"] = LKDiffCases["dc"].fillna(LKDiffCases["c"])
-    except:
-        LKDiffCases = LKcases.copy()
-        LKDiffCases["dc"] = LKDiffCases["c"]
+    if not oLc.empty:
+        LDc = ut.get_different_rows(oLc, Lc)
+        LDc.set_index(["i", "m"], inplace=True, drop=False)
+        oLc.set_index(["i","m"], inplace=True, drop=False)
+        LDc["dc"] = LDc["c"] - oLc["c"]
+        LDc["dc"] = LDc["dc"].fillna(LDc["c"])
+        LDc.reset_index(inplace=True, drop=True)
+        oLc.reset_index(inplace=True, drop=True)
+    else:
+        LDc = Lc.copy()
+        LDc["dc"] = LDc["c"]
     
-    try:
-        LKDiffDeaths = ut.get_different_rows(oldLKdeaths, LKdeaths)
-    except:
-        LKDiffDeaths = LKdeaths.copy()
+    if not oLd.empty:
+        LDd = ut.get_different_rows(oLd, Ld)
+    else:
+        LDd = Ld.copy()
     
-    try:
-        LKDiffRecovered = ut.get_different_rows(oldLKrecovered, LKrecovered)
-    except:
-        LKDiffRecovered = LKrecovered.copy()
+    if not oLr.empty:
+        LDr = ut.get_different_rows(oLr, Lr)
+    else:
+        LDr = Lr.copy()
     
-    try:
+    if not oLi.empty:
         # dont compare float values
-        oldLKincidence.drop("i7", inplace=True, axis=1)
-        temp = LKincidence.copy()
-        LKincidence.drop("i7", inplace=True, axis=1)
-        LKDiffIncidence = ut.get_different_rows(oldLKincidence, LKincidence)
-        LKDiffIncidence.set_index(["i","m"], inplace=True, drop=False)
-        temp.set_index(["i","m"], inplace=True, drop=True)
-        LKDiffIncidence["i7"] = temp["i7"]
-        LKDiffIncidence.reset_index(inplace=True, drop=True)
-    except:
-        LKDiffIncidence = LKincidence.copy()
+        oLiTemp = oLi[["i", "m", "c7"]].copy()
+        LiTemp = Li[["i", "m", "c7"]].copy()
+        LDi = ut.get_different_rows(oLiTemp, LiTemp)
+        LDi.set_index(["i","m"], inplace=True, drop=False)
+        Li.set_index(["i","m"], inplace=True, drop=False)
+        LDi["i7"] = Li["i7"]
+        LDi.reset_index(inplace=True, drop=True)
+        Li.reset_index(inplace=True, drop=True)
+        oLiTemp = pd.DataFrame()
+        LiTemp = pd.DataFrame()
+    else:
+        LDi = Li.copy()
 
-    try:
-        BLDiffCases = ut.get_different_rows(oldBLcases, BLcases)
-        BLDiffCases.set_index(["i", "m"], inplace=True, drop=False)
-        oldBLcases.set_index(["i","m"], inplace=True, drop=False)
-        BLDiffCases["dc"] = BLDiffCases["c"] - oldBLcases["c"]
-        BLDiffCases["dc"] = BLDiffCases["dc"].fillna(BLDiffCases["c"])
-    except:
-        BLDiffCases = BLcases.copy()
-        BLDiffCases["dc"] = BLDiffCases["c"]
+    if not oBc.empty:
+        BDc = ut.get_different_rows(oBc, Bc)
+        BDc.set_index(["i", "m"], inplace=True, drop=False)
+        oBc.set_index(["i","m"], inplace=True, drop=False)
+        BDc["dc"] = BDc["c"] - oBc["c"]
+        BDc["dc"] = BDc["dc"].fillna(BDc["c"])
+        BDc.reset_index(inplace=True, drop=True)
+        oBc.reset_index(inplace=True, drop=True)
+    else:
+        BDc = Bc.copy()
+        BDc["dc"] = BDc["c"]
     
-    try:
-        BLDiffDeaths = ut.get_different_rows(oldBLdeaths, BLdeaths)
-    except:
-        BLDiffDeaths = BLdeaths.copy()
+    if not oBd.empty:
+        BDd = ut.get_different_rows(oBd, Bd)
+    else:
+        BDd = Bd.copy()
     
-    try:
-        BLDiffRecovered = ut.get_different_rows(oldBLrecovered, BLrecovered)
-    except:
-        BLDiffRecovered = BLrecovered.copy()
+    if not oBr.empty:
+        BDr = ut.get_different_rows(oBr, Br)
+    else:
+        BDr = Br.copy()
     
-    try:
-        oldBLincidence.drop("i7", inplace=True, axis=1)
-        temp = BLincidence.copy()
-        BLincidence.drop("i7", inplace=True, axis=1)
-        BLDiffIncidence = ut.get_different_rows(oldBLincidence, BLincidence)
-        BLDiffIncidence.set_index(["i","m"], inplace=True, drop=False)
-        temp.set_index(["i","m"], inplace=True, drop=True)
-        BLDiffIncidence["i7"] = temp["i7"]
-        BLDiffIncidence.reset_index(inplace=True, drop=True)
-    except:
-        BLDiffIncidence = BLincidence.copy()
+    if not oBi.empty:
+        oBiTemp = oBi[["i", "m", "c7"]].copy()
+        BiTemp = Bi[["i", "m", "c7"]].copy()
+        BDi = ut.get_different_rows(oBiTemp, BiTemp)
+        BDi.set_index(["i","m"], inplace=True, drop=False)
+        Bi.set_index(["i","m"], inplace=True, drop=False)
+        BDi["i7"] = Bi["i7"]
+        BDi.reset_index(inplace=True, drop=True)
+        Bi.reset_index(inplace=True, drop=True)
+        oBiTemp = pd.DataFrame()
+        BiTemp = pd.DataFrame()
+    else:
+        BDi = Bi.copy()
 
     t2 = time.time()
     print(f"Done in {round((t2 - t1), 3)} sec.")
@@ -144,62 +133,46 @@ def update(
     print(f"{aktuelleZeit} : storing change history. ",end="")
     t1 = time.time()
     ChangeDate = dt.datetime.strftime(Datenstand, "%Y-%m-%d")
-    LKDiffCases["cD"] = ChangeDate
-    LKDiffDeaths["cD"] = ChangeDate
-    LKDiffRecovered["cD"] = ChangeDate
-    LKDiffIncidence["cD"] = ChangeDate
+    LDc["cD"] = ChangeDate
+    LDd["cD"] = ChangeDate
+    LDr["cD"] = ChangeDate
+    LDi["cD"] = ChangeDate
     
-    BLDiffCases["cD"] = ChangeDate
-    BLDiffDeaths["cD"] = ChangeDate
-    BLDiffRecovered["cD"] = ChangeDate
-    BLDiffIncidence["cD"] = ChangeDate
+    BDc["cD"] = ChangeDate
+    BDd["cD"] = ChangeDate
+    BDr["cD"] = ChangeDate
+    BDi["cD"] = ChangeDate
     
-    if not oldLKDiffCases.empty:
-        LKDiffCases = pd.concat([oldLKDiffCases, LKDiffCases])
-    LKDiffCases["dc"] = LKDiffCases["dc"].astype(int)
+    if not oLDc.empty:
+        LDc = pd.concat([oLDc, LDc])
+    LDc["dc"] = LDc["dc"].astype(int)
         
-    if not oldLKDiffDeaths.empty:
-        LKDiffDeaths = pd.concat([oldLKDiffDeaths, LKDiffDeaths])
+    if not oLDd.empty:
+        LDd = pd.concat([oLDd, LDd])
                     
-    if not oldLKDiffRecovered.empty:
-        LKDiffRecovered = pd.concat([oldLKDiffRecovered, LKDiffRecovered])
+    if not oLDr.empty:
+        LDr = pd.concat([oLDr, LDr])
         
-    if not oldLKDiffIncidence.empty:
-        LKDiffIncidence = pd.concat([oldLKDiffIncidence, LKDiffIncidence])
+    if not oLDi.empty:
+        LDi = pd.concat([oLDi, LDi])
             
-    if not oldBLDiffCases.empty:
-        BLDiffCases = pd.concat([oldBLDiffCases, BLDiffCases])
-    BLDiffCases["dc"] = BLDiffCases["dc"].astype(int)
+    if not oBDc.empty:
+        BDc = pd.concat([oBDc, BDc])
+    BDc["dc"] = BDc["dc"].astype(int)
                 
-    if not oldBLDiffDeaths.empty:
-        BLDiffDeaths = pd.concat([oldBLDiffDeaths, BLDiffDeaths])
+    if not oBDd.empty:
+        BDd = pd.concat([oBDd, BDd])
                 
-    if not oldBLDiffRecovered.empty:
-        BLDiffRecovered = pd.concat([oldBLDiffRecovered, BLDiffRecovered])
+    if not oBDr.empty:
+        BDr = pd.concat([oBDr, BDr])
                 
-    if not oldBLDiffIncidence.empty:
-        BLDiffIncidence = pd.concat([oldBLDiffIncidence, BLDiffIncidence])
+    if not oBDi.empty:
+        BDi = pd.concat([oBDi, BDi])
         
     t2 = time.time()
     print(f"Done in {round((t2 - t1), 3)} sec.")
 
-    return [
-        LKcases,
-        LKdeaths,
-        LKrecovered,
-        LKincidence,
-        BLcases,
-        BLdeaths,
-        BLrecovered,
-        BLincidence,
-        LKDiffCases,
-        LKDiffDeaths,
-        LKDiffRecovered,
-        LKDiffIncidence,
-        BLDiffCases,
-        BLDiffDeaths,
-        BLDiffRecovered,
-        BLDiffIncidence]
+    return [Lc, Ld, Lr, Li, Bc, Bd, Br, Bi, LDc, LDd, LDr, LDi, BDc, BDd, BDr, BDi]
 
 def update_mass(meta):
     base_path = os.path.dirname(os.path.abspath(__file__))

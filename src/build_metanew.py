@@ -84,86 +84,86 @@ if __name__ == '__main__':
   eDatObj = dt.datetime.strptime(enddatum, "%Y-%m-%d")
   delta = dt.timedelta(days=1)
 
-  HC_dtp = {"i": "str", "m": "object", "c": "int64"}
-  HD_dtp = {"i": "str", "m": "object", "d": "int64"}
-  HR_dtp = {"i": "str", "m": "object", "r": "int64"}
-  HI_dtp = {"i": "str", "m": "object", "c7": "int64", "i7": "float"}
+  Hc = {"i": "str", "m": "object", "c": "int64"}
+  Hd = {"i": "str", "m": "object", "d": "int64"}
+  Hr = {"i": "str", "m": "object", "r": "int64"}
+  Hi = {"i": "str", "m": "object", "c7": "int64", "i7": "float"}
 
-  HCC_dtp = {"i": "str", "m": "object", "c": "int64", "dc": "int64", "cD": "object"}
-  HCD_dtp = {"i": "str", "m": "object", "d": "int64", "cD": "object"}
-  HCR_dtp = {"i": "str", "m": "object", "r": "int64", "cD": "object"}
-  HCI_dtp = {"i": "str", "m": "object", "c7": "int64", "i7": "float", "cD": "object"}
+  HCc = {"i": "str", "m": "object", "c": "int64", "dc": "int64", "cD": "object"}
+  HCd = {"i": "str", "m": "object", "d": "int64", "cD": "object"}
+  HCr = {"i": "str", "m": "object", "r": "int64", "cD": "object"}
+  HCi = {"i": "str", "m": "object", "c7": "int64", "i7": "float", "cD": "object"}
 
-  LKcasesFull = os.path.join(base_path, "..", "dataStore", "history", "cases", "districts.json")
-  LKdeathsFull = os.path.join(base_path, "..", "dataStore", "history", "deaths", "districts.json")
-  LKrecoveredFull = os.path.join(base_path, "..", "dataStore", "history", "recovered", "districts.json")
-  LKincidenceFull = os.path.join(base_path, "..", "dataStore", "history", "incidence", "districts.json")
+  LcF = os.path.join(base_path, "..", "dataStore", "history", "cases", "districts.json")
+  LdF = os.path.join(base_path, "..", "dataStore", "history", "deaths", "districts.json")
+  LrF = os.path.join(base_path, "..", "dataStore", "history", "recovered", "districts.json")
+  LiF = os.path.join(base_path, "..", "dataStore", "history", "incidence", "districts.json")
     
-  BLcasesFull = os.path.join(base_path, "..", "dataStore", "history", "cases", "states.json")
-  BLdeathsFull = os.path.join(base_path, "..", "dataStore", "history", "deaths", "states.json")
-  BLrecoveredFull = os.path.join(base_path, "..", "dataStore", "history", "recovered", "states.json")
-  BLincidenceFull = os.path.join(base_path, "..", "dataStore", "history", "incidence", "states.json")
+  BcF = os.path.join(base_path, "..", "dataStore", "history", "cases", "states.json")
+  BdF = os.path.join(base_path, "..", "dataStore", "history", "deaths", "states.json")
+  BrF = os.path.join(base_path, "..", "dataStore", "history", "recovered", "states.json")
+  BiF = os.path.join(base_path, "..", "dataStore", "history", "incidence", "states.json")
   
-  LKDiffCasesFull = os.path.join(base_path, "..", "dataStore", "historychanges", "cases", "districts_Diff.json")
-  LKDiffDeathsFull = os.path.join(base_path, "..", "dataStore", "historychanges", "deaths", "districts_Diff.json")
-  LKDiffRecoveredFull = os.path.join(base_path, "..", "dataStore", "historychanges", "recovered", "districts_Diff.json")
-  LKDiffIncidenceFull = os.path.join(base_path, "..", "dataStore", "historychanges", "incidence", "districts_Diff.json")
+  LDcF = os.path.join(base_path, "..", "dataStore", "historychanges", "cases", "districts_Diff.json")
+  LDdF = os.path.join(base_path, "..", "dataStore", "historychanges", "deaths", "districts_Diff.json")
+  LDrF = os.path.join(base_path, "..", "dataStore", "historychanges", "recovered", "districts_Diff.json")
+  LDiF = os.path.join(base_path, "..", "dataStore", "historychanges", "incidence", "districts_Diff.json")
 
-  BLDiffCasesFull = os.path.join(base_path, "..", "dataStore", "historychanges", "cases", "states_Diff.json")
-  BLDiffDeathsFull = os.path.join(base_path, "..", "dataStore", "historychanges", "deaths", "states_Diff.json")
-  BLDiffRecoveredFull = os.path.join(base_path, "..", "dataStore", "historychanges", "recovered", "states_Diff.json")
-  BLDiffIncidenceFull = os.path.join(base_path, "..", "dataStore", "historychanges", "incidence", "states_Diff.json")
+  BDcF = os.path.join(base_path, "..", "dataStore", "historychanges", "cases", "states_Diff.json")
+  BDdF = os.path.join(base_path, "..", "dataStore", "historychanges", "deaths", "states_Diff.json")
+  BDrF = os.path.join(base_path, "..", "dataStore", "historychanges", "recovered", "states_Diff.json")
+  BDiF = os.path.join(base_path, "..", "dataStore", "historychanges", "incidence", "states_Diff.json")
 
   # if one path is present all others ust be present too!
-  if os.path.exists(LKcasesFull):
-    LKcasesHistory= ut.read_json(full_fn=LKcasesFull, dtype=HC_dtp)
-    LKcasesHistory["c"] = LKcasesHistory["c"].astype("int64")
-    LKdeathsHistory = ut.read_json(full_fn=LKdeathsFull, dtype=HD_dtp)
-    LKdeathsHistory["d"] = LKdeathsHistory["d"].astype("int64")
-    LKrecoveredHistory = ut.read_json(full_fn=LKrecoveredFull, dtype=HR_dtp)
-    LKrecoveredHistory["r"] = LKrecoveredHistory["r"].astype("int64")
-    LKincidenceHistory = ut.read_json(full_fn=LKincidenceFull, dtype=HI_dtp)
-    LKincidenceHistory["c7"] = LKincidenceHistory["c7"].astype("int64")
+  if os.path.exists(LcF):
+    oLc = ut.read_json(full_fn=LcF, dtype=Hc)
+    oLc["c"] = oLc["c"].astype("int64")
+    oLd = ut.read_json(full_fn=LdF, dtype=Hd)
+    oLd["d"] = oLd["d"].astype("int64")
+    oLr = ut.read_json(full_fn=LrF, dtype=Hr)
+    oLr["r"] = oLr["r"].astype("int64")
+    oLi = ut.read_json(full_fn=LiF, dtype=Hi)
+    oLi["c7"] = oLi["c7"].astype("int64")
 
-    BLcasesHistory = ut.read_json(full_fn=BLcasesFull, dtype=HC_dtp)
-    BLcasesHistory["c"] = BLcasesHistory["c"].astype("int64")
-    BLdeathsHistory = ut.read_json(full_fn=BLdeathsFull, dtype=HD_dtp)
-    BLdeathsHistory["d"] = BLdeathsHistory["d"].astype("int64")
-    BLrecoveredHistory = ut.read_json(full_fn=BLrecoveredFull, dtype=HR_dtp)
-    BLrecoveredHistory["r"] = BLrecoveredHistory["r"].astype("int64")
-    BLincidenceHistory = ut.read_json(full_fn=BLincidenceFull, dtype=HI_dtp)
-    BLincidenceHistory["c7"] = BLincidenceHistory["c7"].astype("int64")
+    oBc = ut.read_json(full_fn=BcF, dtype=Hc)
+    oBc["c"] = oBc["c"].astype("int64")
+    oBd = ut.read_json(full_fn=BdF, dtype=Hd)
+    oBd["d"] = oBd["d"].astype("int64")
+    oBr = ut.read_json(full_fn=BrF, dtype=Hr)
+    oBr["r"] = oBr["r"].astype("int64")
+    oBi = ut.read_json(full_fn=BiF, dtype=Hi)
+    oBi["c7"] = oBi["c7"].astype("int64")
 
-    LKDiffCasesHistory = ut.read_json(full_fn=LKDiffCasesFull, dtype=HCC_dtp)
-    LKDiffDeathsHistory = ut.read_json(full_fn=LKDiffDeathsFull, dtype=HCD_dtp)
-    LKDiffRecoveredHistory = ut.read_json(full_fn=LKDiffRecoveredFull, dtype=HCR_dtp)
-    LKDiffIncidenceHistory = ut.read_json(full_fn=LKDiffIncidenceFull, dtype=HCI_dtp)
+    oLDc = ut.read_json(full_fn=LDcF, dtype=HCc)
+    oLDd = ut.read_json(full_fn=LDdF, dtype=HCd)
+    oLDr = ut.read_json(full_fn=LDrF, dtype=HCr)
+    oLDi = ut.read_json(full_fn=LDiF, dtype=HCi)
 
-    BLDiffCasesHistory = ut.read_json(full_fn=BLDiffCasesFull, dtype=HCC_dtp)
-    BLDiffDeathsHistory = ut.read_json(full_fn=BLDiffDeathsFull, dtype=HCD_dtp)
-    BLDiffRecoveredHistory = ut.read_json(full_fn=BLDiffRecoveredFull, dtype=HCR_dtp)
-    BLDiffIncidenceHistory = ut.read_json(full_fn=BLDiffIncidenceFull, dtype=HCI_dtp)
+    oBDc = ut.read_json(full_fn=BDcF, dtype=HCc)
+    oBDd = ut.read_json(full_fn=BDdF, dtype=HCd)
+    oBDr = ut.read_json(full_fn=BDrF, dtype=HCr)
+    oBDi = ut.read_json(full_fn=BDiF, dtype=HCi)
 
   else:
-    LKcasesHistory = pd.DataFrame()
-    LKdeathsHistory = pd.DataFrame()
-    LKrecoveredHistory = pd.DataFrame()
-    LKincidenceHistory = pd.DataFrame()
+    oLc = pd.DataFrame()
+    oLd = pd.DataFrame()
+    oLr = pd.DataFrame()
+    oLi = pd.DataFrame()
     
-    BLcasesHistory = pd.DataFrame()
-    BLdeathsHistory = pd.DataFrame()
-    BLrecoveredHistory = pd.DataFrame()
-    BLincidenceHistory = pd.DataFrame()
+    oBc = pd.DataFrame()
+    oBd = pd.DataFrame()
+    oBr = pd.DataFrame()
+    oBi = pd.DataFrame()
 
-    LKDiffCasesHistory = pd.DataFrame()
-    LKDiffDeathsHistory = pd.DataFrame()
-    LKDiffRecoveredHistory = pd.DataFrame()
-    LKDiffIncidenceHistory = pd.DataFrame()
+    oLDc = pd.DataFrame()
+    oLDd = pd.DataFrame()
+    oLDr = pd.DataFrame()
+    oLDi = pd.DataFrame()
 
-    BLDiffCasesHistory = pd.DataFrame()
-    BLDiffDeathsHistory = pd.DataFrame()
-    BLDiffRecoveredHistory = pd.DataFrame()
-    BLDiffIncidenceHistory = pd.DataFrame()
+    oBDc = pd.DataFrame()
+    oBDd = pd.DataFrame()
+    oBDr = pd.DataFrame()
+    oBDi = pd.DataFrame()
   
   while sDatObj <= eDatObj:
     t1 = time.time()
@@ -172,42 +172,7 @@ if __name__ == '__main__':
     
     new_meta = build_meta_init(dt.datetime.strftime(sDatObj, format="%Y-%m-%d"))
     [BL, LK] = update_mass(meta=new_meta)
-    [LKcasesHistory,
-      LKdeathsHistory,
-      LKrecoveredHistory,
-      LKincidenceHistory,
-      BLcasesHistory,
-      BLdeathsHistory,
-      BLrecoveredHistory,
-      BLincidenceHistory,
-      LKDiffCasesHistory,
-      LKDiffDeathsHistory,
-      LKDiffRecoveredHistory,
-      LKDiffIncidenceHistory,
-      BLDiffCasesHistory,
-      BLDiffDeathsHistory,
-      BLDiffRecoveredHistory,
-      BLDiffIncidenceHistory] = update(
-      new_meta,
-      BL,
-      LK,
-      LKcasesHistory,
-      LKdeathsHistory,
-      LKrecoveredHistory,
-      LKincidenceHistory,
-      BLcasesHistory,
-      BLdeathsHistory,
-      BLrecoveredHistory,
-      BLincidenceHistory,
-      LKDiffCasesHistory,
-      LKDiffDeathsHistory,
-      LKDiffRecoveredHistory,
-      LKDiffIncidenceHistory,
-      BLDiffCasesHistory,
-      BLDiffDeathsHistory,
-      BLDiffRecoveredHistory,
-      BLDiffIncidenceHistory)
-    
+    [oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi] = update(new_meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi)
     meta_path = os.path.join(base_path, "..", "dataStore", "meta", "meta.json")
     meta_path = os.path.normpath(meta_path)
     if os.path.exists(meta_path):
@@ -223,33 +188,33 @@ if __name__ == '__main__':
   print(f"{aktuelleZeit} : final store all Values", end="")
   t1 = time.time()
 
-  ut.write_json(LKcasesHistory, LKcasesFull)
-  ut.write_json(LKdeathsHistory, LKdeathsFull)
-  ut.write_json(LKrecoveredHistory, LKrecoveredFull)
-  ut.write_json(LKincidenceHistory, LKincidenceFull)
+  ut.write_json(oLc, LcF)
+  ut.write_json(oLd, LdF)
+  ut.write_json(oLr, LrF)
+  ut.write_json(oLi, LiF)
   
-  ut.write_json(BLcasesHistory, BLcasesFull)
-  ut.write_json(BLdeathsHistory, BLdeathsFull)
-  ut.write_json(BLrecoveredHistory, BLrecoveredFull)
-  ut.write_json(BLincidenceHistory, BLincidenceFull)
+  ut.write_json(oBc, BcF)
+  ut.write_json(oBd, BdF)
+  ut.write_json(oBr, BrF)
+  ut.write_json(oBi, BiF)
 
-  LKDiffCasesHistory.sort_values(by=["i", "m", "cD"], inplace=True)
-  ut.write_json(LKDiffCasesHistory, LKDiffCasesFull)
-  LKDiffDeathsHistory.sort_values(by=["i", "m", "cD"], inplace=True)
-  ut.write_json(LKDiffDeathsHistory, LKDiffDeathsFull)
-  LKDiffRecoveredHistory.sort_values(by=["i", "m", "cD"], inplace=True)
-  ut.write_json(LKDiffRecoveredHistory, LKDiffRecoveredFull)
-  LKDiffIncidenceHistory.sort_values(by=["i", "m", "cD"], inplace=True)
-  ut.write_json(LKDiffIncidenceHistory, LKDiffIncidenceFull)
+  oLDc.sort_values(by=["i", "m", "cD"], inplace=True)
+  ut.write_json(oLDc, LDcF)
+  oLDd.sort_values(by=["i", "m", "cD"], inplace=True)
+  ut.write_json(oLDd, LDdF)
+  oLDr.sort_values(by=["i", "m", "cD"], inplace=True)
+  ut.write_json(oLDr, LDrF)
+  oLDi.sort_values(by=["i", "m", "cD"], inplace=True)
+  ut.write_json(oLDi, LDiF)
 
-  BLDiffCasesHistory.sort_values(by=["i", "m", "cD"], inplace=True)
-  ut.write_json(BLDiffCasesHistory, BLDiffCasesFull)
-  BLDiffDeathsHistory.sort_values(by=["i", "m", "cD"], inplace=True)
-  ut.write_json(BLDiffDeathsHistory, BLDiffDeathsFull)
-  BLDiffRecoveredHistory.sort_values(by=["i", "m", "cD"], inplace=True)
-  ut.write_json(BLDiffRecoveredHistory, BLDiffRecoveredFull)
-  BLDiffIncidenceHistory.sort_values(by=["i", "m", "cD"], inplace=True)
-  ut.write_json(BLDiffIncidenceHistory, BLDiffIncidenceFull)
+  oBDc.sort_values(by=["i", "m", "cD"], inplace=True)
+  ut.write_json(oBDc, BDcF)
+  oBDd.sort_values(by=["i", "m", "cD"], inplace=True)
+  ut.write_json(oBDd, BDdF)
+  oBDr.sort_values(by=["i", "m", "cD"], inplace=True)
+  ut.write_json(oBDr, BDrF)
+  oBDi.sort_values(by=["i", "m", "cD"], inplace=True)
+  ut.write_json(oBDi, BDiF)
 
   t2 = time.time()
   aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
