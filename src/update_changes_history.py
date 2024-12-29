@@ -9,9 +9,9 @@ from multiprocess_pandas import applyparallel
 
 def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi):
     
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(aktuelleZeit, ": prepare history data. ",end="")
-    t1 = time.time()
+    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
+    #print(aktuelleZeit, ": prepare history data. ",end="")
+    #t1 = time.time()
     timeStamp = meta["modified"]
     Datenstand = dt.datetime.fromtimestamp(timeStamp / 1000)
     Datenstand = Datenstand.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -45,13 +45,13 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
     Br["r"] = Br["r"].astype("int64")
     Bi = BL[["i", "m", "c7", "i7"]].copy()
     Bi["c7"] = Bi["c7"].astype("int64")    
-    t2 = time.time()
-    print(f"Done in {round((t2 - t1), 3)} sec.")
+    #t2 = time.time()
+    #print(f"Done in {round((t2 - t1), 3)} sec.")
     
     # calculate diff data
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(f"{aktuelleZeit} : calculating history difference. ",end="")
-    t1 = time.time()
+    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
+    #print(f"{aktuelleZeit} : calculating history difference. ",end="")
+    #t1 = time.time()
     
     if not oLc.empty:
         LDc = ut.get_different_rows(oLc, Lc)
@@ -126,12 +126,12 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
     else:
         BDi = Bi.copy()
 
-    t2 = time.time()
-    print(f"Done in {round((t2 - t1), 3)} sec.")
+    #t2 = time.time()
+    #print(f"Done in {round((t2 - t1), 3)} sec.")
     
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(f"{aktuelleZeit} : storing change history. ",end="")
-    t1 = time.time()
+    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
+    #print(f"{aktuelleZeit} : storing change history. ",end="")
+    #t1 = time.time()
     ChangeDate = dt.datetime.strftime(Datenstand, "%Y-%m-%d")
     LDc["cD"] = ChangeDate
     LDd["cD"] = ChangeDate
@@ -169,8 +169,8 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
     if not oBDi.empty:
         BDi = pd.concat([oBDi, BDi])
         
-    t2 = time.time()
-    print(f"Done in {round((t2 - t1), 3)} sec.")
+    #t2 = time.time()
+    #print(f"Done in {round((t2 - t1), 3)} sec.")
 
     return [Lc, Ld, Lr, Li, Bc, Bd, Br, Bi, LDc, LDd, LDr, LDi, BDc, BDd, BDr, BDi]
 
@@ -189,28 +189,28 @@ def update_mass(meta):
     BV["GueltigBis"] = pd.to_datetime(BV["GueltigBis"])
 
     # load covid latest from web
-    t1 = time.time()
-    fileName = meta["filename"]
-    fileSize = int(meta["filesize"])
+    #t1 = time.time()
+    #fileName = meta["filename"]
+    #fileSize = int(meta["filesize"])
     fileNameFull = meta["filepath"]
     timeStamp = meta["modified"]
     Datenstand = dt.datetime.fromtimestamp(timeStamp / 1000)
     Datenstand = Datenstand.replace(hour=0, minute=0, second=0, microsecond=0)
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(f"{aktuelleZeit} : load {fileName} (size: {fileSize} bytes). ", end="")
+    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
+    #print(f"{aktuelleZeit} : load {fileName} (size: {fileSize} bytes). ", end="")
     
     LK = pd.read_csv(fileNameFull, engine="pyarrow", usecols=CV_dtypes.keys(), dtype=CV_dtypes)
     
     # ----- Squeeze the dataframe to ideal memory size (see "compressing" Medium article and run_dataframe_squeeze.py for background)
     LK = ut.squeeze_dataframe(LK)
     
-    t2 = time.time()
-    print(f"Done in {round((t2 - t1), 3)} secs. {LK.shape[0]} rows. {round(LK.shape[0] / (t2 - t1), 0)} rows/sec.")
+    #t2 = time.time()
+    #print(f"Done in {round((t2 - t1), 3)} secs. {LK.shape[0]} rows. {round(LK.shape[0] / (t2 - t1), 0)} rows/sec.")
     
     # History
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(f"{aktuelleZeit} : calculating history data. ", end="")
-    t1 = time.time()
+    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
+    #print(f"{aktuelleZeit} : calculating history data. ", end="")
+    #t1 = time.time()
     
     # used keylists
     key_list_LK = ["i", "m"]
@@ -289,12 +289,12 @@ def update_mass(meta):
     LK["d"] = LK["d"].fillna(0).astype(int)
     LK["r"] = LK["r"].fillna(0).astype(int)
 
-    t2 = time.time()
-    print(f"Done in {round((t2 - t1), 3)} secs.")
+    #t2 = time.time()
+    #print(f"Done in {round((t2 - t1), 3)} secs.")
     
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(f"{aktuelleZeit} : calculating BL incidence. {BL.shape[0]} rows. ",end="")
-    t1 = time.time()
+    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
+    #print(f"{aktuelleZeit} : calculating BL incidence. {BL.shape[0]} rows. ",end="")
+    #t1 = time.time()
     BL["m"] = BL["m"].astype(str)
     BL = BL.groupby(["i"], observed=True).apply_parallel(ut.calc_incidence, progressbar=False)
     BL.reset_index(inplace=True, drop=True)
@@ -302,11 +302,11 @@ def update_mass(meta):
     BL.reset_index(inplace=True, drop=True)
     BL["i7"] = (BL["c7"] / BL["Einwohner"] * 100000).round(5)
     BL.drop(["Einwohner"], inplace=True, axis=1)
-    t2 = time.time()
-    print(f"Done in {round(t2 - t1, 3)} sec.")
+    #t2 = time.time()
+    #print(f"Done in {round(t2 - t1, 3)} sec.")
     
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(f"{aktuelleZeit} : calculating LK incidence. {LK.shape[0]} rows. ",end="")
+    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
+    #print(f"{aktuelleZeit} : calculating LK incidence. {LK.shape[0]} rows. ",end="")
     t1 = time.time()
     LK["m"] = LK["m"].astype(str)
     LK = LK.groupby(["i"], observed=True).apply_parallel(ut.calc_incidence, progressbar=False)
@@ -315,7 +315,7 @@ def update_mass(meta):
     LK.reset_index(inplace=True, drop=True)
     LK["i7"] = (LK["c7"] / LK["Einwohner"] * 100000).round(5)
     LK.drop(["Einwohner"], inplace=True, axis=1)
-    t2 = time.time()
-    print(f"Done in {round(t2-t1, 3)} sec.")
+    #t2 = time.time()
+    #print(f"Done in {round(t2-t1, 3)} sec.")
     
     return [BL, LK]

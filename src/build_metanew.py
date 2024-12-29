@@ -168,7 +168,7 @@ if __name__ == '__main__':
   while sDatObj <= eDatObj:
     t1 = time.time()
     aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print (f"{aktuelleZeit} : running on {dt.datetime.strftime(sDatObj, '%Y-%m-%d')}")
+    print (f"{aktuelleZeit} : running on {dt.datetime.strftime(sDatObj, '%Y-%m-%d')}", end="")
     
     new_meta = build_meta_init(dt.datetime.strftime(sDatObj, format="%Y-%m-%d"))
     [BL, LK] = update_mass(meta=new_meta)
@@ -181,7 +181,7 @@ if __name__ == '__main__':
       json.dump(new_meta, json_file, ensure_ascii=False)
     t2 = time.time()
     aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(f"{aktuelleZeit} : {round(t2 - t1, 5)} sec. for date {dt.datetime.strftime(sDatObj, '%Y-%m-%d')}")
+    print(f" {round(t2 - t1, 5)} sec.")
     sDatObj += delta
 
   aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
