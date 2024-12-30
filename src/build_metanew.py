@@ -31,6 +31,7 @@ def meta_init(datum):
   return new_meta
 
 if __name__ == '__main__':
+  startTime = dt.datetime.now()
   if len(sys.argv) == 3:
     startdatum = sys.argv[1]
     enddatum = sys.argv[2]
@@ -118,20 +119,17 @@ if __name__ == '__main__':
   
   while sDatObj <= eDatObj:
     t1 = time.time()
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print (f"{aktuelleZeit} : running on {dt.datetime.strftime(sDatObj, '%Y-%m-%d')}", end="")
+    print (f" running on {dt.datetime.strftime(sDatObj, '%Y-%m-%d')} =>", end="")
     
     new_meta = meta_init(dt.datetime.strftime(sDatObj, format="%Y-%m-%d"))
     [BL, LK] = update_mass(meta=new_meta)
     [oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi] = update(new_meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi)
     
     t2 = time.time()
-    aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    print(f" {round(t2 - t1, 5)} sec.")
+    print(f" {round(t2 - t1, 5)} secs.")
     sDatObj += delta
 
-  aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-  print(f"{aktuelleZeit} : final store all Values", end="")
+  print(f" write json files", end="")
   t1 = time.time()
 
   ut.write_json(oLc, LcF)
@@ -163,10 +161,8 @@ if __name__ == '__main__':
   ut.write_json(oBDi, BDiF)
 
   t2 = time.time()
-  aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-  print(f"Done in {round(t2 - t1, 5)} sec.")
+  print(f"Done in {round(t2 - t1, 5)} secs.")
 
   endTime = dt.datetime.now()
-  aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-  print(f"{aktuelleZeit} : total python time: {endTime - startTime}")
+  print(f" total python time: {endTime - startTime}")
   
