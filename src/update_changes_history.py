@@ -222,9 +222,7 @@ def update_mass(meta):
     
     LK["i"] = LK['i'].map('{:0>5}'.format)
     LK = ut.squeeze_dataframe(LK)
-    LK.sort_values(by=keyLK, inplace=True)
-    LK.reset_index(inplace=True, drop=True)
-    
+        
     BL = LK.copy()
     BL["i"] = BL["i"].str.slice(0,2)
     BL = ut.squeeze_dataframe(BL)
@@ -244,9 +242,7 @@ def update_mass(meta):
     ID0 = BL.groupby(by=keyID0, as_index=False, observed=True).agg(agg_key)
     ID0["i"] = "00"
     BL = pd.concat([BL, ID0])
-    BL.sort_values(by=keyBL, inplace=True)
-    BL.reset_index(inplace=True, drop=True)
-    
+        
     LK["m"] = LK["m"].astype(str)
     BL["m"] = BL["m"].astype(str)
     
