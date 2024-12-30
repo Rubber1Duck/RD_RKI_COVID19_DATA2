@@ -121,19 +121,19 @@ if __name__ == '__main__':
     print (f" {dt.datetime.strftime(sDatObj, '%Y-%m-%d')}", end="")
     
     meta = meta_init(dt.datetime.strftime(sDatObj, format="%Y-%m-%d"))
-    
+    # f"Result is {result:.2f}"
     t1 = time.time()
     print(f" calc BL, LK =>", end="")
     [BL, LK] = update_mass(meta=meta)
     t2 = time.time()
-    print(f" {"{:.3f}".format(t2 - t1)} secs.", end="")
+    print(f" {(t2 - t1):.3f} secs.", end="")
     
     print(f" calc diffs =>", end="")
     [oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi] = update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi)
     t3 = time.time()
-    print(f" {"{:.3f}".format(t3 - t2)} secs.", end="")
+    print(f" {(t3 - t2):.3f} secs.", end="")
     
-    print(f" total: {"{:.3f}".format(t3 - t1)} secs.")
+    print(f" total: {(t3 - t1):.3f} secs.")
     sDatObj += delta
 
   print(f" write json files", end="")
