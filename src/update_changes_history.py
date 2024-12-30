@@ -28,23 +28,16 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
 
     # split LK
     Lc = LK[["i", "m", "c"]].copy()
-    Lc["c"] = Lc["c"].astype("int64")
     Ld = LK[["i", "m", "d"]].copy()
-    Ld["d"] = Ld["d"].astype("int64")
     Lr = LK[["i", "m", "r"]].copy()
-    Lr["r"] = Lr["r"].astype("int64")
     Li = LK[["i", "m", "c7", "i7"]].copy()
-    Li["c7"] = Li["c7"].astype("int64")
-    
+        
     # split BL
     Bc = BL[["i", "m", "c"]].copy()
-    Bc["c"] = Bc["c"].astype("int64")
     Bd = BL[["i", "m", "d"]].copy()
-    Bd["d"] = Bd["d"].astype("int64")
     Br = BL[["i", "m", "r"]].copy()
-    Br["r"] = Br["r"].astype("int64")
     Bi = BL[["i", "m", "c7", "i7"]].copy()
-    Bi["c7"] = Bi["c7"].astype("int64")    
+    
     #t2 = time.time()
     #print(f"Done in {round((t2 - t1), 3)} sec.")
     
@@ -58,7 +51,7 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
         LDc.set_index(["i", "m"], inplace=True, drop=False)
         oLc.set_index(["i","m"], inplace=True, drop=False)
         LDc["dc"] = LDc["c"] - oLc["c"]
-        LDc["dc"] = LDc["dc"].fillna(LDc["c"])
+        LDc["dc"] = LDc["dc"].fillna(LDc["c"]).astype(int)
         LDc.reset_index(inplace=True, drop=True)
         oLc.reset_index(inplace=True, drop=True)
     else:
@@ -95,7 +88,7 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
         BDc.set_index(["i", "m"], inplace=True, drop=False)
         oBc.set_index(["i","m"], inplace=True, drop=False)
         BDc["dc"] = BDc["c"] - oBc["c"]
-        BDc["dc"] = BDc["dc"].fillna(BDc["c"])
+        BDc["dc"] = BDc["dc"].fillna(BDc["c"]).astype(int)
         BDc.reset_index(inplace=True, drop=True)
         oBc.reset_index(inplace=True, drop=True)
     else:
@@ -145,8 +138,7 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
     
     if not oLDc.empty:
         LDc = pd.concat([oLDc, LDc])
-    LDc["dc"] = LDc["dc"].astype(int)
-        
+            
     if not oLDd.empty:
         LDd = pd.concat([oLDd, LDd])
                     
@@ -158,8 +150,7 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
             
     if not oBDc.empty:
         BDc = pd.concat([oBDc, BDc])
-    BDc["dc"] = BDc["dc"].astype(int)
-                
+                    
     if not oBDd.empty:
         BDd = pd.concat([oBDd, BDd])
                 
@@ -213,9 +204,9 @@ def update_mass(meta):
     #t1 = time.time()
     
     # used keylists
-    key_list_LK = ["i", "m"]
-    key_list_BL = ["i", "m"]
-    key_list_ID0 = ["m"]
+    keyLK = ["i", "m"]
+    keyBL = ["i", "m"]
+    keyID0 = ["m"]
 
     LK["AnzahlFall"] = np.where(LK["NeuerFall"].isin([1, 0]), LK["AnzahlFall"], 0).astype(int)
     LK["AnzahlTodesfall"] = np.where(LK["NeuerTodesfall"].isin([1, 0, -9]), LK["AnzahlTodesfall"], 0).astype(int)
@@ -225,13 +216,13 @@ def update_mass(meta):
     agg_key = {
         c: "max" if c in ["i"] else "sum"
         for c in LK.columns
-        if c not in key_list_LK
+        if c not in keyLK
     }
-    LK = LK.groupby(by=key_list_LK, as_index=False, observed=True).agg(agg_key)
+    LK = LK.groupby(by=keyLK, as_index=False, observed=True).agg(agg_key)
     
     LK["i"] = LK['i'].map('{:0>5}'.format)
     LK = ut.squeeze_dataframe(LK)
-    LK.sort_values(by=key_list_LK, inplace=True)
+    LK.sort_values(by=keyLK, inplace=True)
     LK.reset_index(inplace=True, drop=True)
     
     BL = LK.copy()
@@ -240,22 +231,20 @@ def update_mass(meta):
     agg_key = {
         c: "max" if c in ["i"] else "sum"
         for c in BL.columns
-        if c not in key_list_BL
+        if c not in keyBL
     }
-    BL = BL.groupby(by=key_list_BL, as_index=False, observed=True).agg(agg_key)
+    BL = BL.groupby(by=keyBL, as_index=False, observed=True).agg(agg_key)
     BL = ut.squeeze_dataframe(BL)
-    BL.sort_values(by=key_list_BL, inplace=True)
-    BL.reset_index(inplace=True, drop=True)
-
+    
     agg_key = {
         c: "max" if c in ["i"] else "sum"
         for c in BL.columns
-        if c not in key_list_ID0
+        if c not in keyID0
     }
-    ID0 = BL.groupby(by=key_list_ID0, as_index=False, observed=True).agg(agg_key)
+    ID0 = BL.groupby(by=keyID0, as_index=False, observed=True).agg(agg_key)
     ID0["i"] = "00"
-    BL = pd.concat([ID0, BL])
-    BL.sort_values(by=key_list_BL, inplace=True)
+    BL = pd.concat([BL, ID0])
+    BL.sort_values(by=keyBL, inplace=True)
     BL.reset_index(inplace=True, drop=True)
     
     LK["m"] = LK["m"].astype(str)
@@ -297,24 +286,20 @@ def update_mass(meta):
     #t1 = time.time()
     BL["m"] = BL["m"].astype(str)
     BL = BL.groupby(["i"], observed=True).apply_parallel(ut.calc_incidence, progressbar=False)
-    BL.reset_index(inplace=True, drop=True)
-    BL.sort_values(["i", "m"], inplace=True, axis=0)
-    BL.reset_index(inplace=True, drop=True)
     BL["i7"] = (BL["c7"] / BL["Einwohner"] * 100000).round(5)
     BL.drop(["Einwohner"], inplace=True, axis=1)
+    BL.reset_index(inplace=True, drop=True)
     #t2 = time.time()
     #print(f"Done in {round(t2 - t1, 3)} sec.")
     
     #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
     #print(f"{aktuelleZeit} : calculating LK incidence. {LK.shape[0]} rows. ",end="")
-    t1 = time.time()
+    #t1 = time.time()
     LK["m"] = LK["m"].astype(str)
     LK = LK.groupby(["i"], observed=True).apply_parallel(ut.calc_incidence, progressbar=False)
-    LK.reset_index(inplace=True, drop=True)
-    LK.sort_values(["i", "m"], inplace=True, axis=0)
-    LK.reset_index(inplace=True, drop=True)
     LK["i7"] = (LK["c7"] / LK["Einwohner"] * 100000).round(5)
     LK.drop(["Einwohner"], inplace=True, axis=1)
+    LK.reset_index(inplace=True, drop=True)
     #t2 = time.time()
     #print(f"Done in {round(t2-t1, 3)} sec.")
     
