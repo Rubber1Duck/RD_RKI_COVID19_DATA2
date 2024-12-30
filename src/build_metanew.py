@@ -118,15 +118,22 @@ if __name__ == '__main__':
     oBDi = pd.DataFrame()
   
   while sDatObj <= eDatObj:
+    print (f" {dt.datetime.strftime(sDatObj, '%Y-%m-%d')}", end="")
+    
+    meta = meta_init(dt.datetime.strftime(sDatObj, format="%Y-%m-%d"))
+    
     t1 = time.time()
-    print (f" running on {dt.datetime.strftime(sDatObj, '%Y-%m-%d')} =>", end="")
-    
-    new_meta = meta_init(dt.datetime.strftime(sDatObj, format="%Y-%m-%d"))
-    [BL, LK] = update_mass(meta=new_meta)
-    [oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi] = update(new_meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi)
-    
+    print(f" calc BL, LK =>", end="")
+    [BL, LK] = update_mass(meta=meta)
     t2 = time.time()
-    print(f" {round(t2 - t1, 5)} secs.")
+    print(f" {round(t2 - t1, 3)} secs.", end="")
+    
+    print(f" calc diffs =>", end="")
+    [oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi] = update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi)
+    t3 = time.time()
+    print(f" {round(t3 - t2, 3)} secs.", end="")
+    
+    print(f" total: {round(t3 - t1, 3)} secs.")
     sDatObj += delta
 
   print(f" write json files", end="")
@@ -161,7 +168,7 @@ if __name__ == '__main__':
   ut.write_json(oBDi, BDiF)
 
   t2 = time.time()
-  print(f"Done in {round(t2 - t1, 5)} secs.")
+  print(f"Done in {round(t2 - t1, 3)} secs.")
 
   endTime = dt.datetime.now()
   print(f" total python time: {endTime - startTime}")
