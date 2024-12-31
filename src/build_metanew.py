@@ -31,7 +31,7 @@ def meta_init(datum):
   return new_meta
 
 if __name__ == '__main__':
-  startTime = dt.datetime.now()
+  startTime = time.time()
   if len(sys.argv) == 3:
     startdatum = sys.argv[1]
     enddatum = sys.argv[2]
@@ -132,8 +132,8 @@ if __name__ == '__main__':
     [oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi] = update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi)
     t3 = time.time()
     print(f" {(t3 - t2):.3f} secs.", end="")
-    
-    print(f" total: {(t3 - t1):.3f} secs.")
+    print(f" date: {(t3 - t1):.3f} secs.", end="")
+    print(f" total: {t3 - startTime:.3f} secs.")
     sDatObj += delta
 
   print(f" write json files", end="")
@@ -170,6 +170,6 @@ if __name__ == '__main__':
   t2 = time.time()
   print(f"Done in {round(t2 - t1, 3)} secs.")
 
-  endTime = dt.datetime.now()
-  print(f" total python time: {endTime - startTime}")
+  endTime = time.time()
+  print(f" total python time: {round(endTime - startTime, 3)} secs.")
   
