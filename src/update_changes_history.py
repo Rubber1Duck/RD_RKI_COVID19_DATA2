@@ -7,18 +7,10 @@ import utils as ut
 from multiprocess_pandas import applyparallel
 
 
-def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi):
+def update(Datenstand, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi):
     
-    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    #print(aktuelleZeit, ": prepare history data. ",end="")
-    #t1 = time.time()
-    timeStamp = meta["modified"]
-    Datenstand = dt.datetime.fromtimestamp(timeStamp / 1000)
-    Datenstand = Datenstand.replace(hour=0, minute=0, second=0, microsecond=0)
-
-    # for smaler files rename fields
+    # fields are
     # i = Id(Landkreis or Bundesland)
-    # t = Name of Id(Landkreis or Bundesland)
     # m = Meldedatum
     # c = cases
     # d = deaths
@@ -38,14 +30,8 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
     Br = BL[["i", "m", "r"]].copy()
     Bi = BL[["i", "m", "c7", "i7"]].copy()
     
-    #t2 = time.time()
-    #print(f"Done in {round((t2 - t1), 3)} sec.")
-    
     # calculate diff data
-    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    #print(f"{aktuelleZeit} : calculating history difference. ",end="")
-    #t1 = time.time()
-    
+        
     if not oLc.empty:
         LDc = ut.get_different_rows(oLc, Lc)
         LDc.set_index(["i", "m"], inplace=True, drop=False)
@@ -119,12 +105,6 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
     else:
         BDi = Bi.copy()
 
-    #t2 = time.time()
-    #print(f"Done in {round((t2 - t1), 3)} sec.")
-    
-    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    #print(f"{aktuelleZeit} : storing change history. ",end="")
-    #t1 = time.time()
     ChangeDate = dt.datetime.strftime(Datenstand, "%Y-%m-%d")
     LDc["cD"] = ChangeDate
     LDd["cD"] = ChangeDate
@@ -160,15 +140,11 @@ def update(meta, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLD
     if not oBDi.empty:
         BDi = pd.concat([oBDi, BDi])
         
-    #t2 = time.time()
-    #print(f"Done in {round((t2 - t1), 3)} sec.")
-
     return [Lc, Ld, Lr, Li, Bc, Bd, Br, Bi, LDc, LDd, LDr, LDi, BDc, BDd, BDr, BDi]
 
 def update_mass(meta):
-    base_path = os.path.dirname(os.path.abspath(__file__))
-    
-    BV_csv_path = os.path.join(base_path, "..", "Bevoelkerung", "Bevoelkerung.csv")
+        
+    BV_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Bevoelkerung", "Bevoelkerung.csv")
     BV_dtypes = {"AGS": "str", "Altersgruppe": "str", "Name": "str", "GueltigAb": "object", "GueltigBis": "object",
                  "Einwohner": "Int32", "männlich": "Int32", "weiblich": "Int32"}
     CV_dtypes = {"IdLandkreis": "str", "NeuerFall": "Int32", "NeuerTodesfall": "Int32", "NeuGenesen": "Int32",
@@ -180,66 +156,30 @@ def update_mass(meta):
     BV["GueltigBis"] = pd.to_datetime(BV["GueltigBis"])
 
     # load covid latest from web
-    #t1 = time.time()
-    #fileName = meta["filename"]
-    #fileSize = int(meta["filesize"])
-    fileNameFull = meta["filepath"]
-    timeStamp = meta["modified"]
-    Datenstand = dt.datetime.fromtimestamp(timeStamp / 1000)
-    Datenstand = Datenstand.replace(hour=0, minute=0, second=0, microsecond=0)
-    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    #print(f"{aktuelleZeit} : load {fileName} (size: {fileSize} bytes). ", end="")
-    
-    LK = pd.read_csv(fileNameFull, engine="pyarrow", usecols=CV_dtypes.keys(), dtype=CV_dtypes)
-    
-    # ----- Squeeze the dataframe to ideal memory size (see "compressing" Medium article and run_dataframe_squeeze.py for background)
+    Datenstand = dt.datetime.fromtimestamp(meta["modified"] / 1000).replace(hour=0, minute=0, second=0, microsecond=0)
+    LK = pd.read_csv(meta["filepath"], engine="pyarrow", usecols=CV_dtypes.keys(), dtype=CV_dtypes)
     LK = ut.squeeze_dataframe(LK)
     
-    #t2 = time.time()
-    #print(f"Done in {round((t2 - t1), 3)} secs. {LK.shape[0]} rows. {round(LK.shape[0] / (t2 - t1), 0)} rows/sec.")
-    
     # History
-    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    #print(f"{aktuelleZeit} : calculating history data. ", end="")
-    #t1 = time.time()
-    
-    # used keylists
-    keyLK = ["i", "m"]
-    keyBL = ["i", "m"]
-    keyID0 = ["m"]
-
+        
     LK["AnzahlFall"] = np.where(LK["NeuerFall"].isin([1, 0]), LK["AnzahlFall"], 0).astype(int)
     LK["AnzahlTodesfall"] = np.where(LK["NeuerTodesfall"].isin([1, 0, -9]), LK["AnzahlTodesfall"], 0).astype(int)
     LK["AnzahlGenesen"] = np.where(LK["NeuGenesen"].isin([1, 0, -9]), LK["AnzahlGenesen"], 0).astype(int)
     LK.drop(["NeuerFall", "NeuerTodesfall", "NeuGenesen"], inplace=True, axis=1)
     LK.rename(columns={"IdLandkreis": "i", "Meldedatum": "m", "AnzahlFall": "c", "AnzahlTodesfall": "d", "AnzahlGenesen": "r"}, inplace=True)
-    agg_key = {
-        c: "max" if c in ["i"] else "sum"
-        for c in LK.columns
-        if c not in keyLK
-    }
-    LK = LK.groupby(by=keyLK, as_index=False, observed=True).agg(agg_key)
+    agg_key = {'c': 'sum', 'd': 'sum', 'r': 'sum'}
+    LK = LK.groupby(by=["i", "m"], as_index=False, observed=True).agg(agg_key)
     
     LK["i"] = LK['i'].map('{:0>5}'.format)
     LK = ut.squeeze_dataframe(LK)
         
     BL = LK.copy()
     BL["i"] = BL["i"].str.slice(0,2)
-    BL = ut.squeeze_dataframe(BL)
-    agg_key = {
-        c: "max" if c in ["i"] else "sum"
-        for c in BL.columns
-        if c not in keyBL
-    }
-    BL = BL.groupby(by=keyBL, as_index=False, observed=True).agg(agg_key)
+    BL = BL.groupby(by=["i", "m"], as_index=False, observed=True).agg(agg_key)
     BL = ut.squeeze_dataframe(BL)
     
-    agg_key = {
-        c: "max" if c in ["i"] else "sum"
-        for c in BL.columns
-        if c not in keyID0
-    }
-    ID0 = BL.groupby(by=keyID0, as_index=False, observed=True).agg(agg_key)
+    agg_key = {'i': 'max', 'c': 'sum', 'd': 'sum', 'r': 'sum'}
+    ID0 = BL.groupby(by=["m"], as_index=False, observed=True).agg(agg_key)
     ID0["i"] = "00"
     BL = pd.concat([BL, ID0])
         
@@ -274,29 +214,15 @@ def update_mass(meta):
     LK["d"] = LK["d"].fillna(0).astype(int)
     LK["r"] = LK["r"].fillna(0).astype(int)
 
-    #t2 = time.time()
-    #print(f"Done in {round((t2 - t1), 3)} secs.")
-    
-    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    #print(f"{aktuelleZeit} : calculating BL incidence. {BL.shape[0]} rows. ",end="")
-    #t1 = time.time()
-    BL["m"] = BL["m"].astype(str)
     BL = BL.groupby(["i"], observed=True).apply_parallel(ut.calc_incidence, progressbar=False)
     BL["i7"] = (BL["c7"] / BL["Einwohner"] * 100000).round(5)
     BL.drop(["Einwohner"], inplace=True, axis=1)
     BL.reset_index(inplace=True, drop=True)
-    #t2 = time.time()
-    #print(f"Done in {round(t2 - t1, 3)} sec.")
     
-    #aktuelleZeit = dt.datetime.now().strftime(format="%Y-%m-%dT%H:%M:%SZ")
-    #print(f"{aktuelleZeit} : calculating LK incidence. {LK.shape[0]} rows. ",end="")
-    #t1 = time.time()
-    LK["m"] = LK["m"].astype(str)
+        
     LK = LK.groupby(["i"], observed=True).apply_parallel(ut.calc_incidence, progressbar=False)
     LK["i7"] = (LK["c7"] / LK["Einwohner"] * 100000).round(5)
     LK.drop(["Einwohner"], inplace=True, axis=1)
     LK.reset_index(inplace=True, drop=True)
-    #t2 = time.time()
-    #print(f"Done in {round(t2-t1, 3)} sec.")
-    
-    return [BL, LK]
+            
+    return [Datenstand, BL, LK]
