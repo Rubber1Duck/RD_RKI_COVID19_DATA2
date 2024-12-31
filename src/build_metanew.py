@@ -133,7 +133,7 @@ if __name__ == '__main__':
     t3 = time.time()
     print(f" {(t3 - t2):.3f} secs.", end="")
     print(f" date: {(t3 - t1):.3f} secs.", end="")
-    print(f" total: {t3 - startTime:.3f} secs.")
+    print(f" total: {(t3 - startTime):.3f} secs.")
     sDatObj += delta
 
   print(f" write json files", end="")
