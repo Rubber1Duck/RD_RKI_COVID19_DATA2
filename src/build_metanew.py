@@ -39,7 +39,6 @@ if __name__ == '__main__':
     raise ValueError('need exactly 3 arguments! (sdate, edate, type ghrun or initrun)')
   
   base_path = os.path.dirname(os.path.abspath(__file__))
-  startTime = dt.datetime.now()
   sDatObj = dt.datetime.strptime(startdatum, "%Y-%m-%d")
   eDatObj = dt.datetime.strptime(enddatum, "%Y-%m-%d")
   delta = dt.timedelta(days=1)
@@ -133,7 +132,7 @@ if __name__ == '__main__':
     t3 = time.time()
     print(f" {(t3 - t2):.3f} secs.", end="")
     print(f" date: {(t3 - t1):.3f} secs.", end="")
-    print(f" total: {t3 - startTime:.3f} secs.")
+    print(f" total: {(t3 - startTime):.3f} secs.")
     sDatObj += delta
 
   print(f" write json files", end="")
