@@ -176,7 +176,7 @@ def update_mass(meta: dict) -> list:
 
     # load covid latest from web
     Datenstand = dt.datetime.fromtimestamp(meta["modified"] / 1000).replace(hour=0, minute=0, second=0, microsecond=0)
-    featherPath = meta["filepath"].replace("csv", "feather")
+    featherPath = meta["filepath"].replace("csv", "feather")[:-3]
     if os.path.exists(featherPath):
         LK = ut.read_file(fn=featherPath)
     else:
