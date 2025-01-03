@@ -32,5 +32,6 @@ for path in all_files:
   LK = ut.squeeze_dataframe(LK)
   featherPath = path.replace("csv", "feather")[:-3]
   ut.write_file(df=LK, fn=featherPath, compression="lz4")
+  os.remove(path)
   print(f"{path} done.")
 
