@@ -1,7 +1,7 @@
 import os
 import utils as ut
 import re
-import datetime as dt
+import time
 import pandas as pd
 # converts all csv data files from csv to feather format for faster loading
 
@@ -28,10 +28,12 @@ for file in file_list:
       all_files.append((file_path_full))
 
 for path in all_files:
+  t1 = time.time()
   LK = pd.read_csv(path, engine="pyarrow", usecols=dtypes.keys(), dtype=dtypes)
   LK = ut.squeeze_dataframe(LK)
   featherPath = path.replace("csv", "feather")[:-3]
   ut.write_file(df=LK, fn=featherPath, compression="lz4")
   os.remove(path)
-  print(f"{path} done.")
+  t2 = time.time()
+  print(f"{path}; {LK.shape[0]} rows. {round(t2 - t1, 3)} secs.")
 
