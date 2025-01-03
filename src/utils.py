@@ -3,7 +3,7 @@ import pandas as pd
 from pandas.api.types import CategoricalDtype
 
 
-def squeeze_dataframe(df):
+def squeeze_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     # ----- Get columns in dataframe
     cols = dict(df.dtypes)
 
@@ -19,7 +19,7 @@ def squeeze_dataframe(df):
     return df
 
 
-def write_file(df, fn, compression=""):
+def write_file(df: pd.DataFrame, fn: str, compression=""):
     fn_ext = os.path.splitext(fn)[1]
 
     if fn_ext == ".csv":
@@ -36,7 +36,7 @@ def write_file(df, fn, compression=""):
     return
 
 
-def write_json(df, full_fn):
+def write_json(df: pd.DataFrame, full_fn: str):
     df.to_json(
         path_or_buf=full_fn,
         orient="records",
@@ -48,13 +48,13 @@ def write_json(df, full_fn):
     return
 
 
-def read_json(full_fn, dtype):
+def read_json(full_fn: str, dtype: dict) -> pd.DataFrame:
     df = pd.read_json(full_fn, dtype=dtype)
 
     return df
 
 
-def read_file(fn):
+def read_file(fn: str) -> pd.DataFrame:
     fn_ext = os.path.splitext(fn)[1]
 
     if fn_ext == ".csv":
@@ -70,15 +70,8 @@ def read_file(fn):
     return df
 
 
-def calc_incidence(df):
+def calc_incidence(df: pd.DataFrame) -> pd.DataFrame:
     df["c7"] = df["c"].rolling(7).sum()
-    #Indexes = df.index.to_list()
-    #df_cases_values = df["c"].values
-    #y = 0
-    #for index in Indexes:
-    #    indexPos = Indexes.index(index)
-    #    df.at[index, "c7"] = sum(df_cases_values[indexPos - y:indexPos + 1])
-    #    if y < 6: y += 1
     df.drop(df.head(6).index, inplace=True)
     df["c7"] = df["c7"].astype(int)
     return df
@@ -89,7 +82,7 @@ def copy(source, destination):
    with open(destination, 'wb') as file:
        file.write(myFile)
 
-def get_different_rows(source_df, new_df):
+def get_different_rows(source_df: pd.DataFrame, new_df: pd.DataFrame) -> pd.DataFrame:
     """Returns just the rows from the new dataframe that differ from the source dataframe"""
     merged_df = source_df.merge(new_df, indicator=True, how='outer')
     changed_rows_df = merged_df[merged_df['_merge'] == 'right_only']

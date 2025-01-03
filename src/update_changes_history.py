@@ -7,7 +7,26 @@ import utils as ut
 from multiprocess_pandas import applyparallel
 
 
-def update(Datenstand, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLDd, oLDr, oLDi, oBDc, oBDd, oBDr, oBDi):
+def update(
+        Datenstand: dt.datetime,
+        BL: pd.DataFrame,
+        LK: pd.DataFrame,
+        oLc: pd.DataFrame,
+        oLd: pd.DataFrame,
+        oLr: pd.DataFrame,
+        oLi: pd.DataFrame,
+        oBc: pd.DataFrame,
+        oBd: pd.DataFrame,
+        oBr: pd.DataFrame,
+        oBi: pd.DataFrame,
+        oLDc: pd.DataFrame,
+        oLDd: pd.DataFrame,
+        oLDr: pd.DataFrame,
+        oLDi: pd.DataFrame,
+        oBDc: pd.DataFrame,
+        oBDd: pd.DataFrame,
+        oBDr: pd.DataFrame,
+        oBDi: pd.DataFrame) -> list:
     
     # fields are
     # i = Id(Landkreis or Bundesland)
@@ -142,8 +161,8 @@ def update(Datenstand, BL, LK, oLc, oLd, oLr, oLi, oBc, oBd, oBr, oBi, oLDc, oLD
         
     return [Lc, Ld, Lr, Li, Bc, Bd, Br, Bi, LDc, LDd, LDr, LDi, BDc, BDd, BDr, BDi]
 
-def update_mass(meta):
-        
+def update_mass(meta: dict) -> list:
+
     BV_csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "Bevoelkerung", "Bevoelkerung.csv")
     BV_dtypes = {"AGS": "str", "Altersgruppe": "str", "Name": "str", "GueltigAb": "object", "GueltigBis": "object",
                  "Einwohner": "Int32", "männlich": "Int32", "weiblich": "Int32"}
@@ -157,8 +176,14 @@ def update_mass(meta):
 
     # load covid latest from web
     Datenstand = dt.datetime.fromtimestamp(meta["modified"] / 1000).replace(hour=0, minute=0, second=0, microsecond=0)
-    LK = pd.read_csv(meta["filepath"], engine="pyarrow", usecols=CV_dtypes.keys(), dtype=CV_dtypes)
-    LK = ut.squeeze_dataframe(LK)
+    featherPath = meta["filepath"].replace("csv", "feather")
+    if os.path.exists(featherPath):
+        LK = ut.read_file(fn=featherPath)
+    else:
+        LK = pd.read_csv(meta["filepath"], engine="pyarrow", usecols=CV_dtypes.keys(), dtype=CV_dtypes)
+        LK = ut.squeeze_dataframe(LK)
+        ut.write_file(df=LK, fn=featherPath, compression="lz4")
+
     
     # History
         
